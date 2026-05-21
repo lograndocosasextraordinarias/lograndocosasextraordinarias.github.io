@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escuela de Consciencia — Kattya Oviedo</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://www.paypal.com/sdk/js?client-id=AWrsEq_mBzB2zm-1RywZeMKfKOpnOQDwQUDiwmIYKawHyGXSn1UmqFQm4aalPAdznPP2WVOfpZfr3_uV&currency=USD"></script>
+<style>
+:root {
+  --deep: #0d0b14;
+  --mid: #16121f;
+  --surface: #1e1829;
+  --card: #231d30;
+  --border: rgba(180,150,255,0.12);
+  --gold: #c9a96e;
+  --gold-light: #e8cc9a;
+  --violet: #8b6fbe;
+  --violet-light: #b399e8;
+  --text: #f0eaf8;
+  --muted: #9b8fad;
+  --accent: #d4a8ff;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+  font-family: 'Jost', sans-serif;
+  background: var(--deep);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 80% 10%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 50% 60%, rgba(255,255,255,0.35) 0%, transparent 100%),
+    radial-gradient(1px 1px at 10% 80%, rgba(255,255,255,0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 70%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 35% 15%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 65% 85%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(2px 2px at 75% 45%, rgba(201,169,110,0.3) 0%, transparent 100%),
+    radial-gradient(2px 2px at 25% 55%, rgba(180,150,255,0.2) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+.screen { display: none; min-height: 100vh; position: relative; z-index: 1; }
+.screen.active { display: flex; flex-direction: column; }
+
+#login-screen { align-items: center; justify-content: center; padding: 2rem; }
+.login-glow {
+  position: absolute; width: 400px; height: 400px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(139,111,190,0.15) 0%, transparent 70%);
+  top: 50%; left: 50%; transform: translate(-50%, -60%); pointer-events: none;
+}
+.login-box {
+  width: 100%; max-width: 400px; background: var(--card);
+  border: 1px solid var(--border); border-radius: 20px; padding: 3rem 2.5rem; position: relative;
+}
+.login-box::before {
+  content: ''; position: absolute; top: -1px; left: 10%; right: 10%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--violet-light), transparent);
+}
+.login-symbol { text-align: center; font-size: 2.5rem; margin-bottom: 0.5rem; }
+.login-title {
+  font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300;
+  text-align: center; color: var(--gold-light); letter-spacing: 0.05em; margin-bottom: 0.25rem;
+}
+.login-subtitle {
+  text-align: center; font-size: 0.8rem; color: var(--muted);
+  letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 2.5rem;
+}
+.field { margin-bottom: 1.25rem; }
+.field label {
+  display: block; font-size: 0.75rem; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem;
+}
+.field input {
+  width: 100%; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 0.75rem 1rem; color: var(--text);
+  font-family: 'Jost', sans-serif; font-size: 0.95rem; outline: none; transition: border-color 0.2s;
+}
+.field input:focus { border-color: var(--violet); }
+.btn-primary {
+  width: 100%; background: linear-gradient(135deg, var(--violet) 0%, #6b4fa0 100%);
+  border: none; border-radius: 10px; padding: 0.85rem; color: white;
+  font-family: 'Jost', sans-serif; font-size: 0.9rem; letter-spacing: 0.08em;
+  text-transform: uppercase; cursor: pointer; transition: opacity 0.2s, transform 0.1s; margin-top: 0.5rem;
+}
+.btn-primary:hover { opacity: 0.9; }
+.btn-primary:active { transform: scale(0.98); }
+.login-error {
+  margin-top: 1rem; padding: 0.75rem; background: rgba(220,80,80,0.1);
+  border: 1px solid rgba(220,80,80,0.2); border-radius: 8px;
+  font-size: 0.85rem; color: #f08080; text-align: center; display: none;
+}
+.login-register { margin-top: 1.5rem; text-align: center; font-size: 0.82rem; color: var(--muted); }
+.login-register a { color: var(--violet-light); text-decoration: none; cursor: pointer; }
+
+#catalog-screen { padding: 0; }
+.nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.25rem 2.5rem; border-bottom: 1px solid var(--border);
+  background: rgba(13,11,20,0.8); backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 100;
+}
+.nav-brand { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 400; color: var(--gold-light); letter-spacing: 0.05em; }
+.nav-right { display: flex; align-items: center; gap: 1.5rem; }
+.nav-user { font-size: 0.82rem; color: var(--muted); }
+.nav-user span { color: var(--accent); }
+.btn-logout {
+  background: transparent; border: 1px solid var(--border); border-radius: 8px;
+  padding: 0.4rem 1rem; color: var(--muted); font-family: 'Jost', sans-serif;
+  font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+}
+.btn-logout:hover { border-color: var(--violet); color: var(--violet-light); }
+.catalog-hero { text-align: center; padding: 4rem 2rem 3rem; }
+.catalog-hero-title {
+  font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 300; font-style: italic; color: var(--gold-light); line-height: 1.2; margin-bottom: 0.75rem;
+}
+.catalog-hero-sub { font-size: 0.85rem; color: var(--muted); letter-spacing: 0.2em; text-transform: uppercase; }
+.catalog-divider { display: flex; align-items: center; gap: 1rem; max-width: 300px; margin: 1.5rem auto; }
+.catalog-divider::before, .catalog-divider::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--border)); }
+.catalog-divider::after { background: linear-gradient(90deg, var(--border), transparent); }
+.catalog-divider-gem { color: var(--gold); font-size: 0.7rem; }
+.tabs-row { display: flex; gap: 0.5rem; padding: 0 2.5rem; margin-bottom: 2rem; flex-wrap: wrap; }
+.tab-btn {
+  background: transparent; border: 1px solid var(--border); border-radius: 20px;
+  padding: 0.4rem 1.1rem; color: var(--muted); font-family: 'Jost', sans-serif; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;
+}
+.tab-btn.active, .tab-btn:hover { background: rgba(139,111,190,0.15); border-color: var(--violet); color: var(--violet-light); }
+.courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; padding: 0 2.5rem 4rem; }
+.course-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+  overflow: hidden; cursor: pointer; transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s; position: relative;
+}
+.course-card:hover { transform: translateY(-4px); border-color: rgba(180,150,255,0.3); box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+.course-card.locked { cursor: default; }
+.course-card.locked:hover { transform: none; border-color: var(--border); box-shadow: none; }
+.course-card.unavailable { cursor: default; opacity: 0.7; }
+.course-card.unavailable:hover { transform: none; border-color: var(--border); box-shadow: none; }
+.course-thumb {
+  height: 160px; background: linear-gradient(135deg, var(--surface) 0%, var(--mid) 100%);
+  display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;
+}
+.course-thumb::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at 30% 50%, rgba(139,111,190,0.2) 0%, transparent 60%);
+}
+.course-thumb-icon { font-size: 3rem; position: relative; z-index: 1; }
+.course-lock {
+  position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5);
+  border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px;
+  font-size: 0.7rem; color: var(--muted); display: flex; align-items: center; gap: 4px;
+}
+.course-body { padding: 1.25rem; }
+.course-category { font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.5rem; }
+.course-name { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 400; color: var(--text); line-height: 1.3; margin-bottom: 0.75rem; }
+.course-meta { display: flex; align-items: center; justify-content: space-between; }
+.course-videos { font-size: 0.78rem; color: var(--muted); }
+.course-price { font-size: 0.9rem; font-weight: 500; color: var(--gold-light); }
+.course-owned { font-size: 0.78rem; color: #7dc982; display: flex; align-items: center; gap: 4px; }
+.course-unavailable { font-size: 0.75rem; color: var(--muted); font-style: italic; }
+
+#course-screen { padding: 0; }
+.back-btn {
+  display: inline-flex; align-items: center; gap: 0.5rem; background: transparent; border: none;
+  color: var(--muted); font-family: 'Jost', sans-serif; font-size: 0.85rem; cursor: pointer; padding: 1.5rem 2.5rem; transition: color 0.2s;
+}
+.back-btn:hover { color: var(--text); }
+.course-detail { max-width: 900px; margin: 0 auto; padding: 0 2.5rem 4rem; }
+.course-detail-header { display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: start; margin-bottom: 2.5rem; }
+.course-detail-tag { font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; }
+.course-detail-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 300; color: var(--text); line-height: 1.2; margin-bottom: 1rem; }
+.course-detail-desc { font-size: 0.9rem; color: var(--muted); line-height: 1.8; }
+.payment-box {
+  background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+  padding: 1.75rem; min-width: 260px; position: relative;
+}
+.payment-box::before {
+  content: ''; position: absolute; top: -1px; left: 15%; right: 15%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.payment-price-label { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.25rem; }
+.payment-price-amount { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-weight: 400; color: var(--gold-light); margin-bottom: 0.25rem; }
+.payment-price-usd { font-size: 0.8rem; color: var(--muted); margin-bottom: 1.5rem; }
+.payment-divider { height: 1px; background: var(--border); margin: 1.25rem 0; }
+.btn-nequi {
+  width: 100%; background: linear-gradient(135deg, #7B2D8B 0%, #4a1060 100%);
+  border: none; border-radius: 10px; padding: 0.85rem; color: white;
+  font-family: 'Jost', sans-serif; font-size: 0.85rem; letter-spacing: 0.05em; cursor: pointer;
+  transition: opacity 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 0.75rem;
+}
+.btn-nequi:hover { opacity: 0.9; }
+.btn-paypal {
+  width: 100%; background: #ffc439; border: none; border-radius: 10px; padding: 0.85rem;
+  color: #003087; font-family: 'Jost', sans-serif; font-size: 0.85rem; font-weight: 500;
+  letter-spacing: 0.05em; cursor: pointer; transition: opacity 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+}
+.btn-paypal:hover { opacity: 0.9; }
+.payment-secure { margin-top: 1rem; text-align: center; font-size: 0.72rem; color: var(--muted); }
+.payment-methods { display: flex; justify-content: center; gap: 0.4rem; margin-top: 0.5rem; flex-wrap: wrap; }
+.method-pill { background: var(--surface); border: 1px solid var(--border); border-radius: 5px; padding: 2px 8px; font-size: 0.68rem; color: var(--muted); }
+.access-box {
+  background: rgba(125,201,130,0.06); border: 1px solid rgba(125,201,130,0.2);
+  border-radius: 16px; padding: 1.75rem; min-width: 260px; text-align: center;
+}
+.access-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+.access-title { font-size: 0.85rem; color: #7dc982; font-weight: 500; margin-bottom: 0.5rem; }
+.access-sub { font-size: 0.8rem; color: var(--muted); }
+.btn-enter {
+  width: 100%; margin-top: 1.25rem; background: rgba(125,201,130,0.15);
+  border: 1px solid rgba(125,201,130,0.3); border-radius: 10px; padding: 0.85rem;
+  color: #7dc982; font-family: 'Jost', sans-serif; font-size: 0.85rem;
+  letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+}
+.btn-enter:hover { background: rgba(125,201,130,0.25); }
+.unavailable-box {
+  background: rgba(155,143,173,0.06); border: 1px solid rgba(155,143,173,0.2);
+  border-radius: 16px; padding: 1.75rem; min-width: 260px; text-align: center;
+}
+.unavailable-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+.unavailable-title { font-size: 0.85rem; color: var(--muted); font-weight: 500; margin-bottom: 0.5rem; }
+.unavailable-sub { font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
+
+#player-screen { padding: 0; background: var(--deep); }
+.player-layout { display: grid; grid-template-columns: 1fr 320px; height: calc(100vh - 65px); }
+.player-main { overflow-y: auto; padding: 1.5rem 2rem; }
+.player-sidebar { border-left: 1px solid var(--border); overflow-y: auto; background: var(--mid); }
+.video-container { background: #000; border-radius: 12px; overflow: hidden; aspect-ratio: 16/9; margin-bottom: 1.5rem; position: relative; }
+.video-container iframe { width: 100%; height: 100%; border: none; }
+.video-placeholder {
+  width: 100%; height: 100%; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; background: var(--surface); color: var(--muted); font-size: 0.85rem; gap: 1rem;
+}
+.video-placeholder-icon { font-size: 3rem; }
+.player-title { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 400; margin-bottom: 0.5rem; }
+.player-meta { font-size: 0.82rem; color: var(--muted); }
+.sidebar-header { padding: 1.25rem 1.25rem 1rem; border-bottom: 1px solid var(--border); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.lesson-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.9rem 1.25rem; border-bottom: 1px solid rgba(180,150,255,0.06); cursor: pointer; transition: background 0.15s; }
+.lesson-item:hover { background: rgba(139,111,190,0.08); }
+.lesson-item.active { background: rgba(139,111,190,0.12); }
+.lesson-num { width: 26px; height: 26px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--muted); flex-shrink: 0; }
+.lesson-item.active .lesson-num { background: var(--violet); border-color: var(--violet); color: white; }
+.lesson-name { font-size: 0.85rem; color: var(--text); line-height: 1.3; }
+.lesson-duration { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+#admin-screen { padding: 0; }
+.admin-content { max-width: 900px; margin: 0 auto; padding: 2rem 2.5rem 4rem; }
+.admin-title { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; color: var(--gold-light); margin-bottom: 0.5rem; }
+.admin-sub { font-size: 0.85rem; color: var(--muted); margin-bottom: 2rem; }
+.admin-section { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; }
+.admin-section-title { font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.25rem; }
+.admin-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+.admin-field { display: flex; flex-direction: column; gap: 0.4rem; }
+.admin-label { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.05em; }
+.admin-input { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.9rem; color: var(--text); font-family: 'Jost', sans-serif; font-size: 0.88rem; outline: none; }
+.admin-input:focus { border-color: var(--violet); }
+.admin-select { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.9rem; color: var(--text); font-family: 'Jost', sans-serif; font-size: 0.88rem; outline: none; }
+.btn-admin { background: linear-gradient(135deg, var(--violet) 0%, #6b4fa0 100%); border: none; border-radius: 8px; padding: 0.65rem 1.5rem; color: white; font-family: 'Jost', sans-serif; font-size: 0.82rem; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: opacity 0.2s; }
+.btn-admin:hover { opacity: 0.9; }
+.students-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+.students-table th { text-align: left; padding: 0.5rem 0.75rem; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
+.students-table td { padding: 0.75rem; border-bottom: 1px solid rgba(180,150,255,0.05); color: var(--text); }
+.students-table tr:last-child td { border-bottom: none; }
+.status-active { display: inline-block; background: rgba(125,201,130,0.1); border: 1px solid rgba(125,201,130,0.2); border-radius: 20px; padding: 2px 10px; font-size: 0.7rem; color: #7dc982; }
+.info-box { background: rgba(139,111,190,0.06); border: 1px solid rgba(139,111,190,0.15); border-radius: 12px; padding: 1.25rem; font-size: 0.83rem; color: var(--muted); line-height: 1.8; margin-top: 1rem; }
+.info-box strong { color: var(--violet-light); }
+.info-step { display: flex; gap: 0.75rem; align-items: flex-start; margin-bottom: 0.75rem; }
+.info-step:last-child { margin-bottom: 0; }
+.info-step-num { width: 20px; height: 20px; border-radius: 50%; background: var(--violet); color: white; font-size: 0.65rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+
+@media (max-width: 768px) {
+  .player-layout { grid-template-columns: 1fr; height: auto; }
+  .player-sidebar { border-left: none; border-top: 1px solid var(--border); }
+  .course-detail-header { grid-template-columns: 1fr; }
+  .admin-form-row { grid-template-columns: 1fr; }
+  .courses-grid { padding: 0 1.25rem 3rem; }
+  .tabs-row, .nav { padding-left: 1.25rem; padding-right: 1.25rem; }
+  .nav-user { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen" class="screen active">
+  <div class="login-glow"></div>
+  <div class="login-box">
+    <div class="login-symbol">✦</div>
+    <div class="login-title">Kattya Oviedo</div>
+    <div class="login-subtitle" style="color:var(--gold); letter-spacing:0.08em;">Escuela de Consciencia · Logrando cosas Extraordinarias</div>
+    <div style="height:1px; background:linear-gradient(90deg,transparent,var(--border),transparent); margin:1rem 0 1.5rem;"></div>
+    <div class="field">
+      <label>Correo electrónico</label>
+      <input type="email" id="login-email" placeholder="tu@correo.com" />
+    </div>
+    <div class="field">
+      <label>Contraseña</label>
+      <input type="password" id="login-pass" placeholder="••••••••" />
+    </div>
+    <button class="btn-primary" onclick="doLogin()">Ingresar</button>
+    <div class="login-error" id="login-error">Correo o contraseña incorrectos</div>
+    <div class="login-register">
+      ¿Aún no tienes acceso? <a onclick="showRegisterInfo()">Compra un curso</a>
+    </div>
+  </div>
+</div>
+
+<!-- CATALOG -->
+<div id="catalog-screen" class="screen">
+  <nav class="nav">
+    <div class="nav-brand" style="display:flex; flex-direction:column; gap:1px;">
+      <span>✦ Kattya Oviedo</span>
+      <span style="font-size:0.65rem; color:var(--gold); font-family:'Jost',sans-serif; font-weight:300; letter-spacing:0.07em;">Escuela de Consciencia · Logrando cosas Extraordinarias</span>
+    </div>
+    <div class="nav-right">
+      <div class="nav-user">Hola, <span id="nav-username"></span></div>
+      <button class="btn-logout" onclick="doLogout()">Salir</button>
+      <button class="btn-logout" id="admin-btn" onclick="showAdmin()" style="display:none; border-color:var(--gold); color:var(--gold);">Admin</button>
+    </div>
+  </nav>
+  <div class="catalog-hero">
+    <div class="catalog-hero-title">Bienvenida a tu escuela</div>
+    <div class="catalog-hero-sub">Kattya Oviedo · Logrando cosas Extraordinarias</div>
+    <div class="catalog-divider"><span class="catalog-divider-gem">✦</span></div>
+  </div>
+  <div class="tabs-row">
+    <button class="tab-btn active" onclick="filterCourses('todos', this)">Todos los cursos</button>
+    <button class="tab-btn" onclick="filterCourses('propios', this)">Mis cursos</button>
+    <button class="tab-btn" onclick="filterCourses('bloqueados', this)">Por explorar</button>
+  </div>
+  <div class="courses-grid" id="courses-grid"></div>
+</div>
+
+<!-- COURSE DETAIL -->
+<div id="course-screen" class="screen">
+  <nav class="nav">
+    <div class="nav-brand" style="display:flex; flex-direction:column; gap:1px;">
+      <span>✦ Kattya Oviedo</span>
+      <span style="font-size:0.65rem; color:var(--gold); font-family:'Jost',sans-serif; font-weight:300; letter-spacing:0.07em;">Escuela de Consciencia · Logrando cosas Extraordinarias</span>
+    </div>
+    <div class="nav-right">
+      <div class="nav-user">Hola, <span id="nav-username2"></span></div>
+      <button class="btn-logout" onclick="doLogout()">Salir</button>
+    </div>
+  </nav>
+  <button class="back-btn" onclick="showCatalog()">← Volver al catálogo</button>
+  <div class="course-detail">
+    <div class="course-detail-header">
+      <div>
+        <div class="course-detail-tag" id="detail-tag"></div>
+        <div class="course-detail-title" id="detail-title"></div>
+        <div class="course-detail-desc" id="detail-desc"></div>
+      </div>
+      <div id="detail-action"></div>
+    </div>
+  </div>
+</div>
+
+<!-- VIDEO PLAYER -->
+<div id="player-screen" class="screen">
+  <nav class="nav">
+    <div class="nav-brand" style="display:flex; flex-direction:column; gap:1px;">
+      <span>✦ Kattya Oviedo</span>
+      <span style="font-size:0.65rem; color:var(--gold); font-family:'Jost',sans-serif; font-weight:300; letter-spacing:0.07em;">Escuela de Consciencia · Logrando cosas Extraordinarias</span>
+    </div>
+    <div class="nav-right">
+      <button class="btn-logout" onclick="showCatalog()">← Catálogo</button>
+      <button class="btn-logout" onclick="doLogout()">Salir</button>
+    </div>
+  </nav>
+  <div class="player-layout">
+    <div class="player-main">
+      <div class="video-container" id="video-container">
+        <div class="video-placeholder">
+          <div class="video-placeholder-icon">▶</div>
+          <div>Selecciona una lección para comenzar</div>
+        </div>
+      </div>
+      <div class="player-title" id="player-lesson-title">—</div>
+      <div class="player-meta" id="player-course-meta"></div>
+    </div>
+    <div class="player-sidebar">
+      <div class="sidebar-header" id="sidebar-course-name"></div>
+      <div id="lessons-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="admin-screen" class="screen">
+  <nav class="nav">
+    <div class="nav-brand" style="display:flex; flex-direction:column; gap:1px;">
+      <span>✦ Kattya Oviedo — Admin</span>
+      <span style="font-size:0.65rem; color:var(--gold); font-family:'Jost',sans-serif; font-weight:300; letter-spacing:0.07em;">Escuela de Consciencia · Logrando cosas Extraordinarias</span>
+    </div>
+    <div class="nav-right">
+      <button class="btn-logout" onclick="showCatalog()">← Catálogo</button>
+      <button class="btn-logout" onclick="doLogout()">Salir</button>
+    </div>
+  </nav>
+  <div class="admin-content">
+    <div class="admin-title">Panel de administración — Kattya Oviedo</div>
+    <div class="admin-sub">Escuela de Consciencia · Logrando cosas Extraordinarias</div>
+    <div class="admin-section">
+      <div class="admin-section-title">Agregar estudiante</div>
+      <div class="admin-form-row">
+        <div class="admin-field">
+          <div class="admin-label">Nombre completo</div>
+          <input class="admin-input" id="new-name" placeholder="María García" />
+        </div>
+        <div class="admin-field">
+          <div class="admin-label">Correo electrónico</div>
+          <input class="admin-input" id="new-email" placeholder="maria@correo.com" />
+        </div>
+      </div>
+      <div class="admin-form-row">
+        <div class="admin-field">
+          <div class="admin-label">Contraseña temporal</div>
+          <input class="admin-input" id="new-pass" placeholder="alma2024" />
+        </div>
+        <div class="admin-field">
+          <div class="admin-label">Cursos con acceso (ej: 1,3,5 o todos)</div>
+          <input class="admin-input" id="new-courses" placeholder="1,3,5" />
+        </div>
+      </div>
+      <div class="admin-form-row">
+        <div class="admin-field">
+          <div class="admin-label">Tipo de acceso</div>
+          <select class="admin-select" id="new-plan">
+            <option value="Trimestre">Trimestre (3 meses)</option>
+            <option value="Semestre">Semestre (6 meses)</option>
+            <option value="Anual">Anual (12 meses)</option>
+            <option value="Vitalicio">Vitalicio</option>
+          </select>
+        </div>
+        <div class="admin-field" style="justify-content:flex-end;">
+          <button class="btn-admin" onclick="addStudent()">Agregar estudiante</button>
+        </div>
+      </div>
+      <div id="add-msg" style="font-size:0.82rem; color:#7dc982; margin-top:0.5rem; display:none;">✓ Estudiante agregado correctamente</div>
+    </div>
+    <div class="admin-section">
+      <div class="admin-section-title">Estudiantes activos</div>
+      <table class="students-table">
+        <thead><tr><th>Nombre</th><th>Correo</th><th>Plan</th><th>Estado</th></tr></thead>
+        <tbody id="students-tbody"></tbody>
+      </table>
+    </div>
+    <div class="admin-section">
+      <div class="admin-section-title">Pagos — Cómo funciona</div>
+      <div class="info-box">
+        <div style="font-size:0.78rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--violet-light); margin-bottom:0.75rem;">Flujo de pago actual</div>
+        <div class="info-step"><div class="info-step-num">1</div><div>El estudiante elige Nequi o PayPal y completa el pago</div></div>
+        <div class="info-step"><div class="info-step-num">2</div><div>Te llega notificación a tu celular (Nequi al <strong>3016535157</strong>) o a tu correo (PayPal)</div></div>
+        <div class="info-step"><div class="info-step-num">3</div><div>Entras al panel Admin, agregas al estudiante con su correo y los cursos comprados</div></div>
+        <div class="info-step"><div class="info-step-num">4</div><div>Le envías su correo y contraseña por WhatsApp o email — ya puede entrar</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const COURSES = [
+  {
+    id: 1,
+    name: 'Taller de Astrología "Descubre tu energía del alma a través de tu carta natal"',
+    category: 'Astrología', icon: '♈', price: 129000, available: true,
+    desc: 'Descubre los mensajes que el universo grabó en el cielo en el momento exacto de tu nacimiento. Aprende a leer tu carta natal, interpretar tus planetas y casas, y comprender la energía única de tu alma.',
+    lessons: [
+      { title: 'Introducción a la carta natal', duration: '45 min', driveId: 'TU_ID_DRIVE_AQUI' },
+      { title: 'Los signos del zodíaco', duration: '52 min', driveId: 'TU_ID_DRIVE_AQUI' },
+      { title: 'Las casas astrológicas', duration: '48 min', driveId: 'TU_ID_DRIVE_AQUI' },
+      { title: 'Planetas y su energía', duration: '61 min', driveId: 'TU_ID_DRIVE_AQUI' },
+    ]
+  },
+  {
+    id: 2,
+    name: 'Mentoría ¿Y ahora qué?',
+    category: 'Mentoría', icon: '🌟', price: 199000, available: true,
+    desc: '8 horas de terapia personalizada por el precio de una, más acceso completo a todos los videos. Un acompañamiento profundo para encontrar claridad, propósito y dirección en los momentos de transición de tu vida.',
+    lessons: [
+      { title: 'Claridad de propósito', duration: '40 min', driveId: 'TU_ID_DRIVE_AQUI' },
+      { title: 'Herramientas de decisión', duration: '55 min', driveId: 'TU_ID_DRIVE_AQUI' },
+      { title: 'Plan de acción', duration: '38 min', driveId: 'TU_ID_DRIVE_AQUI' },
+    ]
+  },
+  {
+    id: 3,
+    name: 'Como Salir de Pobre y No Morir en el Intento',
+    category: 'Abundancia', icon: '💛', price: 99000, available: false,
+    desc: 'Transforma tu relación con el dinero desde la raíz. Elimina las creencias que te han mantenido en escasez y construye una mentalidad de abundancia real y sostenible.',
+    lessons: [
+      { title: 'Tu relación con el dinero', duration: '50 min', driveId: 'TU_ID_DRIVE_AQUI' },
+      { title: 'Creencias limitantes', duration: '65 min', driveId: 'TU_ID_DRIVE_AQUI' },
+      { title: 'Mentalidad de abundancia', duration: '58 min', driveId: 'TU_ID_DRIVE_AQUI' },
+      { title: 'Estrategias prácticas', duration: '70 min', driveId: 'TU_ID_DRIVE_AQUI' },
+    ]
+  },
+  {
+    id: 4,
+    name: 'Certificación en Terapia Neurometafísica',
+    category: 'Certificación', icon: '🧠', price: 1299000, available: false,
+    desc: 'Formación completa para convertirte en terapeuta certificada en Neurometafísica. Aprende protocolos de sesión, técnicas de liberación emocional y acompaña a otros en su proceso de sanación.',
+    lessons: [
+      { title: 'Fundamentos de la Neurometafísica', duration: '80 min', driveId: 'TU_ID_DRIVE_AQUI' },
+      { title: 'Técnicas de liberación emocional', duration: '75 min', driveId: 'TU_ID_DRIVE_AQUI' },
+      { title: 'Protocolo de sesión', duration: '90 min', driveId: 'TU_ID_DRIVE_AQUI' },
+      { title: 'Práctica supervisada', duration: '120 min', driveId: 'TU_ID_DRIVE_AQUI' },
+    ]
+  },
+  {
+    id: 5,
+    name: 'Programación Neurolingüística PNL',
+    category: 'PNL', icon: '🌀', price: 1299000, available: false,
+    desc: 'Domina las técnicas más poderosas de Programación Neurolingüística para reprogramar tu mente, mejorar tu comunicación y alcanzar tus metas con claridad y enfoque.',
+    lessons: [
+      { title: 'Fundamentos de PNL', duration: '55 min', driveId: 'TU_ID_DRIVE_AQUI' },
+      { title: 'Rapport y comunicación', duration: '48 min', driveId: 'TU_ID_DRIVE_AQUI' },
+      { title: 'Anclas y estados mentales', duration: '62 min', driveId: 'TU_ID_DRIVE_AQUI' },
+      { title: 'Reprogramación de creencias', duration: '70 min', driveId: 'TU_ID_DRIVE_AQUI' },
+    ]
+  },
+  {
+    id: 6,
+    name: 'Taller de Códigos y Numerología Sagrada',
+    category: 'Numerología', icon: '🔢', price: 57000, available: true,
+    desc: 'El universo habla a través de los números. Aprende a descifrar los códigos sagrados presentes en tu fecha de nacimiento, tu nombre y los eventos de tu vida cotidiana.',
+    lessons: [
+      { title: 'Introducción a la numerología', duration: '42 min', driveId: 'TU_ID_DRIVE_AQUI' },
+      { title: 'Tu número de vida', duration: '50 min', driveId: 'TU_ID_DRIVE_AQUI' },
+      { title: 'Códigos sagrados', duration: '58 min', driveId: 'TU_ID_DRIVE_AQUI' },
+    ]
+  },
+  {
+    id: 7,
+    name: 'Taller de Claris',
+    category: 'Clarividencia', icon: '👁', price: 117000, available: true,
+    desc: 'Despierta y desarrolla tus sentidos extrasensoriales de forma segura y guiada. Clarividencia, clariaudiencia y clarisentencia al alcance de tu consciencia.',
+    lessons: [
+      { title: 'Abriendo los sentidos extrasensoriales', duration: '60 min', driveId: 'TU_ID_DRIVE_AQUI' },
+      { title: 'Ejercicios de clarividencia', duration: '55 min', driveId: 'TU_ID_DRIVE_AQUI' },
+      { title: 'Protección energética', duration: '45 min', driveId: 'TU_ID_DRIVE_AQUI' },
+    ]
+  },
+  {
+    id: 8,
+    name: 'Como Recordar las Vidas Pasadas y Sanar tu Karma',
+    category: 'Regresión', icon: '⏳', price: 199000, available: true,
+    desc: 'Viaja a tus vidas anteriores para comprender los patrones que se repiten en tu vida actual. Sana contratos kármicos y libérate de cargas que no son tuyas en esta encarnación.',
+    lessons: [
+      { title: 'Karma y sus leyes', duration: '50 min', driveId: 'TU_ID_DRIVE_AQUI' },
+      { title: 'Técnica de regresión guiada', duration: '75 min', driveId: 'TU_ID_DRIVE_AQUI' },
+      { title: 'Sanación kármica', duration: '65 min', driveId: 'TU_ID_DRIVE_AQUI' },
+    ]
+  },
+  {
+    id: 9,
+    name: 'Saltando Líneas de Tiempo',
+    category: 'Cuántico', icon: '⚡', price: 299000, available: true,
+    desc: 'Aprende a moverte entre líneas de tiempo usando principios de la física cuántica aplicada. Manifiesta conscientemente la realidad que deseas vivir y ancla tu nueva versión.',
+    lessons: [
+      { title: 'Física cuántica aplicada', duration: '58 min', driveId: 'TU_ID_DRIVE_AQUI' },
+      { title: 'Técnica del deslizamiento', duration: '72 min', driveId: 'TU_ID_DRIVE_AQUI' },
+      { title: 'Anclaje en la nueva línea', duration: '60 min', driveId: 'TU_ID_DRIVE_AQUI' },
+    ]
+  },
+  {
+    id: 10,
+    name: 'Historia Secreta de la Humanidad',
+    category: 'Esotérico', icon: '📜', price: 49000, available: true,
+    desc: 'Un viaje por los grandes misterios de la humanidad: civilizaciones ocultas, conocimiento ancestral suprimido y las verdades que cambian para siempre tu forma de ver el mundo.',
+    lessons: [
+      { title: 'Civilizaciones perdidas', duration: '80 min', driveId: 'TU_ID_DRIVE_AQUI' },
+      { title: 'Conocimiento ancestral', duration: '75 min', driveId: 'TU_ID_DRIVE_AQUI' },
+      { title: 'Verdades prohibidas', duration: '90 min', driveId: 'TU_ID_DRIVE_AQUI' },
+      { title: 'El despertar colectivo', duration: '65 min', driveId: 'TU_ID_DRIVE_AQUI' },
+    ]
+  }
+];
+
+let USERS = [
+  { email: 'lograndocosasextraordinarias@gmail.com', pass: 'admin1976', name: 'Kattya Oviedo', role: 'admin', courses: [1,2,3,4,5,6,7,8,9,10], plan: 'Admin' },
+  { email: 'abdulsan45@gmail.com', pass: 'alma2026', name: 'Amparo Sanchez', role: 'student', courses: [7,10], plan: 'Trimestre' },
+  { email: 'segurosppg@hotmail.com', pass: 'luz2026', name: 'Patricia Pulido', role: 'student', courses: [10], plan: 'Trimestre' },
+  { email: 'dianamarti29@gmail.com', pass: 'darma2026', name: 'Diana Martinez', role: 'student', courses: [7,9,10], plan: 'Trimestre' },
+  { email: 'kattyao@gmail.com', pass: 'cosmos2026', name: 'Katty Diaz', role: 'student', courses: [1,2,3,4,5,6,7,8,9,10], plan: 'Semestre' },
+];
+
+const CONFIG = {
+  nequiPhone: '3016535157',
+  paypalMe: 'https://www.paypal.com/paypalme/kattyaoviedo',
+  exchangeRate: 3800,
+  paypalClientId: 'AWrsEq_mBzB2zm-1RywZeMKfKOpnOQDwQUDiwmIYKawHyGXSn1UmqFQm4aalPAdznPP2WVOfpZfr3_uV',
+  wompiKey: 'pub_prod_W2YIgsPzgvnxjEq5K1lwbI9GC8lpnuyf',
+  wompiIntegrity: 'prod_integrity_Z5NBE4L48c1cJSecnvBS3odza8SNWzoE',
+  webhookUrl: 'https://script.google.com/macros/s/AKfycbxNTixTMbzcwxSsHWPbJ25BxscNMTSWVv21raSE63CUdQEGHytO6Z4QkBcLL5ZaH5Ar/exec',
+};
+
+let currentUser = null;
+let currentCourse = null;
+let currentFilter = 'todos';
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  const pass = document.getElementById('login-pass').value;
+  const user = USERS.find(u => u.email.toLowerCase() === email && u.pass === pass);
+  if (!user) { document.getElementById('login-error').style.display = 'block'; return; }
+  document.getElementById('login-error').style.display = 'none';
+  currentUser = user;
+  document.getElementById('nav-username').textContent = user.name.split(' ')[0];
+  document.getElementById('nav-username2').textContent = user.name.split(' ')[0];
+  if (user.role === 'admin') document.getElementById('admin-btn').style.display = 'inline-block';
+  showCatalog();
+}
+
+function doLogout() {
+  currentUser = null;
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('admin-btn').style.display = 'none';
+  showScreen('login-screen');
+}
+
+document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+function showRegisterInfo() {
+  alert('Para adquirir un curso, elige el que te interesa y paga por Nequi al 3016535157 o por PayPal. Kattya te enviará tu acceso en menos de 24 horas.');
+}
+
+function showCatalog() { renderCourses(currentFilter); showScreen('catalog-screen'); }
+
+function filterCourses(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCourses(filter);
+}
+
+function renderCourses(filter) {
+  const grid = document.getElementById('courses-grid');
+  const owned = currentUser ? currentUser.courses : [];
+  let list = COURSES;
+  if (filter === 'propios') list = COURSES.filter(c => owned.includes(c.id));
+  if (filter === 'bloqueados') list = COURSES.filter(c => !owned.includes(c.id));
+
+  grid.innerHTML = list.map(c => {
+    const isOwned = owned.includes(c.id);
+    const cardClass = isOwned ? '' : (c.available ? 'locked' : 'unavailable');
+    const onclick = isOwned ? `enterCourse(${c.id})` : `showCourseDetail(${c.id})`;
+    return `
+    <div class="course-card ${cardClass}" onclick="${onclick}">
+      <div class="course-thumb">
+        <div class="course-thumb-icon">${c.icon}</div>
+        ${!isOwned && c.available ? '<div class="course-lock">🔒 Disponible</div>' : ''}
+        ${!isOwned && !c.available ? '<div class="course-lock">⏳ Próximamente</div>' : ''}
+      </div>
+      <div class="course-body">
+        <div class="course-category">${c.category}</div>
+        <div class="course-name">${c.name}</div>
+        <div class="course-meta">
+          <div class="course-videos">${c.lessons.length} lecciones</div>
+          ${isOwned ? '<div class="course-owned">✓ Adquirido</div>'
+            : c.available ? `<div class="course-price">${c.price.toLocaleString('es-CO')} COP</div>`
+            : '<div class="course-unavailable">Próximamente disponible</div>'}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function showCourseDetail(id) {
+  currentCourse = COURSES.find(c => c.id === id);
+  const owned = currentUser && currentUser.courses.includes(id);
+  document.getElementById('detail-tag').textContent = currentCourse.category;
+  document.getElementById('detail-title').textContent = currentCourse.name;
+  document.getElementById('detail-desc').textContent = currentCourse.desc;
+
+  const priceUSD = Math.ceil(currentCourse.price / CONFIG.exchangeRate);
+
+  if (owned) {
+    document.getElementById('detail-action').innerHTML = `
+      <div class="access-box">
+        <div class="access-icon">✦</div>
+        <div class="access-title">Ya tienes acceso</div>
+        <div class="access-sub">Este curso está en tu biblioteca</div>
+        <button class="btn-enter" onclick="enterCourse(${id})">Entrar al curso</button>
+      </div>`;
+  } else if (!currentCourse.available) {
+    document.getElementById('detail-action').innerHTML = `
+      <div class="unavailable-box">
+        <div class="unavailable-icon">⏳</div>
+        <div class="unavailable-title">Próximamente disponible</div>
+        <div class="unavailable-sub">Este curso estará disponible muy pronto.<br>Escríbele a Kattya para más información.</div>
+      </div>`;
+  } else {
+    document.getElementById('detail-action').innerHTML = `
+      <div class="payment-box">
+        <div class="payment-price-label">Precio del curso</div>
+        <div class="payment-price-amount">${currentCourse.price.toLocaleString('es-CO')}</div>
+        <div class="payment-price-usd">COP · Aprox. USD ${priceUSD}</div>
+        <button class="btn-nequi" onclick="payWompi(${id})">
+          <span>💳</span> Pagar con Nequi / PSE / Tarjeta CO
+        </button>
+        <div style="margin-bottom:0.75rem;" id="paypal-button-container-${id}"></div>
+        <div class="payment-divider"></div>
+        <div class="payment-secure">🔒 Pago seguro · Acceso automático inmediato</div>
+        <div class="payment-methods">
+          <span class="method-pill">Nequi</span>
+          <span class="method-pill">PSE</span>
+          <span class="method-pill">Daviplata</span>
+          <span class="method-pill">Tarjeta CO</span>
+          <span class="method-pill">PayPal</span>
+        </div>
+      </div>`;
+  }
+  showScreen('course-screen');
+  if (!currentCourse.available || (currentUser && currentUser.courses.includes(id))) return;
+  setTimeout(() => {
+    const container = document.getElementById(`paypal-button-container-${id}`);
+    if (!container) return;
+    paypal.Buttons({
+      style: { layout: 'horizontal', color: 'gold', shape: 'rect', label: 'paypal', height: 40 },
+      createOrder: function(data, actions) {
+        return actions.order.create({
+          purchase_units: [{
+            amount: { value: priceUSD.toString(), currency_code: 'USD' },
+            description: currentCourse.name,
+            custom_id: `curso-${id}`,
+          }]
+        });
+      },
+      onApprove: function(data, actions) {
+        return actions.order.capture().then(function(details) {
+          const nombre = details.payer.name.given_name + ' ' + details.payer.name.surname;
+          const email = details.payer.email_address;
+          alert(`✦ ¡Pago recibido, ${nombre}!\n\nKattya está procesando tu acceso y te enviará tu usuario y contraseña al correo ${email} muy pronto.`);
+        });
+      },
+      onError: function(err) {
+        alert('Hubo un error con el pago. Por favor intenta de nuevo o usa Nequi.');
+      }
+    }).render(`#paypal-button-container-${id}`);
+  }, 300);
+}
+
+function payWompi(courseId) {
+  const course = COURSES.find(c => c.id === courseId);
+  const ref = `curso-${courseId}-${Date.now()}`;
+  const amountCents = course.price * 100;
+  const params = new URLSearchParams({
+    'public-key': CONFIG.wompiKey,
+    'currency': 'COP',
+    'amount-in-cents': amountCents,
+    'reference': ref,
+    'redirect-url': window.location.href,
+    'customer-data:email': currentUser ? currentUser.email : '',
+  });
+  window.location.href = `https://checkout.wompi.co/p/?${params.toString()}`;
+}
+
+function payPayPal(courseId) {
+  const course = COURSES.find(c => c.id === courseId);
+  const priceUSD = Math.ceil(course.price / CONFIG.exchangeRate);
+  window.open(`${CONFIG.paypalMe}/${priceUSD}`, '_blank');
+}
+
+function enterCourse(id) {
+  currentCourse = COURSES.find(c => c.id === id);
+  document.getElementById('sidebar-course-name').textContent = currentCourse.name;
+  renderLessons(0);
+  showScreen('player-screen');
+}
+
+function renderLessons(activeIdx) {
+  const list = document.getElementById('lessons-list');
+  list.innerHTML = currentCourse.lessons.map((l, i) => `
+    <div class="lesson-item ${i === activeIdx ? 'active' : ''}" onclick="playLesson(${i})">
+      <div class="lesson-num">${i + 1}</div>
+      <div>
+        <div class="lesson-name">${l.title}</div>
+        <div class="lesson-duration">${l.duration}</div>
+      </div>
+    </div>`).join('');
+}
+
+function playLesson(idx) {
+  const lesson = currentCourse.lessons[idx];
+  document.getElementById('player-lesson-title').textContent = lesson.title;
+  document.getElementById('player-course-meta').textContent = `${currentCourse.name} · Lección ${idx + 1} de ${currentCourse.lessons.length}`;
+  const container = document.getElementById('video-container');
+  if (lesson.driveId && lesson.driveId !== 'TU_ID_DRIVE_AQUI') {
+    container.innerHTML = `<iframe src="https://drive.google.com/file/d/${lesson.driveId}/preview" allowfullscreen allow="autoplay"></iframe>`;
+  } else {
+    container.innerHTML = `
+      <div class="video-placeholder">
+        <div class="video-placeholder-icon">▶</div>
+        <div style="text-align:center;">
+          <div style="margin-bottom:0.5rem;">${lesson.title}</div>
+          <div style="font-size:0.75rem; color:var(--muted);">Conecta tu video de Google Drive aquí</div>
+        </div>
+      </div>`;
+  }
+  renderLessons(idx);
+}
+
+function showAdmin() { renderStudentsTable(); showScreen('admin-screen'); }
+
+function renderStudentsTable() {
+  const tbody = document.getElementById('students-tbody');
+  const students = USERS.filter(u => u.role === 'student');
+  tbody.innerHTML = students.map(u => `
+    <tr>
+      <td>${u.name}</td>
+      <td style="color:var(--muted); font-size:0.8rem;">${u.email}</td>
+      <td style="color:var(--muted); font-size:0.8rem;">${u.plan}</td>
+      <td><span class="status-active">Activo</span></td>
+    </tr>`).join('');
+}
+
+function addStudent() {
+  const name = document.getElementById('new-name').value.trim();
+  const email = document.getElementById('new-email').value.trim();
+  const pass = document.getElementById('new-pass').value.trim();
+  const courses = document.getElementById('new-courses').value.trim();
+  const plan = document.getElementById('new-plan').value;
+  if (!name || !email || !pass) { alert('Completa nombre, correo y contraseña'); return; }
+  let courseIds = courses.toLowerCase() === 'todos' ? COURSES.map(c => c.id) : courses.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+  USERS.push({ email, pass, name, role: 'student', courses: courseIds, plan });
+  renderStudentsTable();
+  document.getElementById('new-name').value = '';
+  document.getElementById('new-email').value = '';
+  document.getElementById('new-pass').value = '';
+  document.getElementById('new-courses').value = '';
+  const msg = document.getElementById('add-msg');
+  msg.style.display = 'block';
+  setTimeout(() => msg.style.display = 'none', 3000);
+}
+
+document.getElementById('login-email').focus();
+</script>
+</body>
+</html>
